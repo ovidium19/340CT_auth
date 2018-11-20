@@ -3,6 +3,15 @@ import koaBP from 'koa-bodyparser'
 import Router from 'koa-router'
 import koabp from 'koa-bodyparser'
 import status from 'http-status-codes'
+import * as db from '../../../modules/user-persist'
+import basicAuth from './basicAuth'
+/*
+HEAD /login
+POST /signup
+GET /:username
+PUT /:username
+
+*/
 
 
 const app = new koa()
@@ -14,16 +23,42 @@ app.use( async(ctx, next) => {
 })
 const port = 3030
 const router = new Router()
+router.use(async (ctx,next) => {
+    await next().catch(err => {
+        ctx.status = status.UNAUTHORIZED
+        ctx.body = {status: status.UNAUTHORIZED, message: err.message}
+    })
+})
+router.use(basicAuth)
+
 router.get('/',async ctx => {
     ctx.set('Allow','GET')
-    try {
+
+    try{
         if (ctx.get('error')) throw new Error(ctx.get('error'))
         ctx.status = status.OK
-        ctx.body = {path: '/api/v1/user - path'}
+        ctx.body = {
+        path: '/api/v1/user - path',
+        state: ctx.state.user
+        }
     }
     catch(err) {
         ctx.status = status.NOT_FOUND
-		ctx.body = {status: 'error', message: err.message}
+        ctx.body = {status: status.NOT_FOUND, message: err.message}
+    }
+})
+router.post('/signup', async ctx => {
+    const userData = ctx.request.body
+    const userLoginDetails = ctx.state.user
+    const user = {...userData, ...userLoginDetails}
+    try{
+        let res = await db.createUser(user)
+        ctx.body = res
+        ctx.status = status.CREATED
+    }
+    catch(err) {
+        ctx.status = status.UNPROCESSABLE_ENTITY
+        ctx.body = {status: status.UNPROCESSABLE_ENTITY, message: err.message}
     }
 })
 app.use(router.routes())
