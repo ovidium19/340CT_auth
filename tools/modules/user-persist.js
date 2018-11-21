@@ -1,17 +1,19 @@
 import {MongoClient, ObjectID} from  'mongodb'
 import axios from 'axios'
 import dotenv from 'dotenv'
-import {connect, digestGenerateHeader} from './utils'
+import {connect, digestGenerateHeader, schemaCheck} from './utils'
 dotenv.config()
 let calls = 0
 const adminUser = {
     username: process.env.MONGO_ADMIN_USERNAME,
     password: process.env.MONGO_ADMIN_PASS
 }
+const userSchema = {
+    username: true,
+    password: true
+}
 export async function createUser(userData) {
-    if (!(userData.hasOwnProperty('username')) || !(userData.hasOwnProperty('password'))){
-        return Promise.reject({message: 'Not the right data'})
-    }
+    if (!schemaCheck(userSchema, userData)) return Promise.reject({message: 'Missing fields'})
     const adminData = {
         username: process.env.MONGO_USERNAME,
         password: process.env.MONGO_APIKEY

@@ -1,3 +1,6 @@
+let axios = require('axios')
+jest.mock('mongodb')
+jest.mock('axios')
 import * as db from './user-persist'
 import dotenv from 'dotenv'
 import { getData } from 'mongodb'
@@ -32,3 +35,50 @@ describe('Testing connection', () => {
         done()
     })
 })
+
+describe('Testing createUser', () => {
+    beforeAll(() => {
+        axios.mockImplementation((options) => {
+            return new Promise((resolve,reject) => {
+                if (options.hasOwnProperty('headers')){
+                    resolve({data: options.headers['Authorization']})
+                }
+                else{
+                    reject({
+                        response: {
+                            headers: {
+                                'www-authenticate': 'Digest realm="MMS Public API", domain="", nonce="testnonce", algorithm=MD5, qop="auth", stale=false'
+                            }
+                        }
+                    })
+                }
+            })
+        })
+    })
+    test('If successfull, result should contain user information stored in public db', async done => {
+        const userData = {
+            username: 'test2',
+            password: 'test'
+        }
+        const expectedResult = {
+            id: 2
+        }
+        const result = await db.createUser(userData)
+        console.log(result)
+        expect(result).toEqual(expect.objectContaining(expectedResult))
+        done()
+    })
+    test('if userData does not have the right schema, provide error message', async done => {
+        const userData = {
+            nofields: true
+        }
+        try{
+            const result = await db.createUser(userData)
+        }
+        catch(result){
+            expect(result.message).toBe('Missing fields')
+        }
+        done()
+    })
+})
+
