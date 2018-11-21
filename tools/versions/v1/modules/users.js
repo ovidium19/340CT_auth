@@ -1,16 +1,14 @@
 import koa from 'koa'
 import koaBP from 'koa-bodyparser'
 import Router from 'koa-router'
-import koabp from 'koa-bodyparser'
 import status from 'http-status-codes'
 import * as db from '../../../modules/user-persist'
 import basicAuth from './basicAuth'
 /*
-HEAD /login
 POST /signup
-GET /:username
+HEAD /login
+GET /login
 PUT /:username
-
 */
 
 
@@ -45,6 +43,20 @@ router.get('/',async ctx => {
     catch(err) {
         ctx.status = status.NOT_FOUND
         ctx.body = {status: status.NOT_FOUND, message: err.message}
+    }
+})
+router.get('/login',async ctx => {
+    ctx.set('Allow','GET, HEAD')
+    const user = ctx.state.user
+    try{
+        if (ctx.get('error')) throw new Error(ctx.get('error'))
+        let res = await db.getUserByUsername(user)
+        ctx.body = res
+        ctx.status = status.OK
+    }
+    catch(err) {
+        ctx.status = status.UNAUTHORIZED
+        ctx.body = {status: status.UNAUTHORIZED, message: err.message}
     }
 })
 router.post('/signup', async ctx => {

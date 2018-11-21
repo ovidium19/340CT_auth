@@ -13,6 +13,12 @@ const userSchema = {
     password: true,
     email: true
 }
+async function getClientAndCollection(user,dbName,colName) {
+    let client = await connect(user)
+    let db = await client.db(dbName)
+    let collection = await db.collection(colName)
+    return {client, collection}
+}
 export async function createUser(userData) {
     if (!schemaCheck(userSchema, userData)) return Promise.reject({message: 'Missing fields'})
     const adminData = {
@@ -56,20 +62,15 @@ export async function createUser(userData) {
         })
 }
 async function postUserData(userData,adminUser) {
-    let client = await connect(adminUser)
-    let db = await client.db(process.env.MONGO_DBUSERS)
-    let collection = await db.collection(process.env.MONGO_DBUSERS_COLLECTION)
+    let {client, collection } = await getClientAndCollection(adminUser,process.env.MONGO_DBUSERS, process.env.MONGO_DBUSERS_COLLECTION)
     const { password, ...itemWithNoPassword} = userData
     let result = await collection.insertOne(itemWithNoPassword)
     await client.close()
     return Object.assign({},result.ops,{id: result.insertedId})
 }
-export async function getUserByUsername(username,user){
-    if (!user) user = adminUser
-    let client = await connect(user)
-    let db = await client.db(process.env.MONGO_DBUSERS)
-    let collection = await db.collection(process.env.MONGO_DBUSERS_COLLECTION)
-    let result = await collection.findOne({username})
+export async function getUserByUsername(user){
+    let {client, collection } = await getClientAndCollection(user,process.env.MONGO_DBUSERS, process.env.MONGO_DBUSERS_COLLECTION)
+    let result = await collection.findOne({username: user.username})
     await client.close()
     return result
 }
