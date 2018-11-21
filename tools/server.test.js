@@ -1,3 +1,5 @@
+jest.mock('mongodb')
+jest.mock('./modules/user-persist')
 import server from './server'
 import status from 'http-status-codes'
 import request from 'supertest'
@@ -117,6 +119,50 @@ describe('GET /api/v1/users authenticated', () => {
         expect(response.body).toEqual(expect.objectContaining({
             path: '/api/v1/user - path'
         }))
+        done()
+    })
+})
+describe('POST /api/v1/users/signup', () => {
+    let authHeader
+    let newUserHeader
+    beforeAll(() => {
+        authHeader = "Basic " + btoa("test:test")
+        newUserHeader = "Basic " + btoa("wrong:wrong")
+    })
+    afterAll(runAfterAll)
+
+    test('Check common headers' , async done => {
+        //expect.assertions(2)
+        const response = await request(server).post('/api/v1/users/signup')
+                            .expect(status.UNAUTHORIZED)
+        //expect(response.status).toBe(status.OK)
+		expect(response.header['access-control-allow-origin']).toBe('*')
+		done()
+    })
+    test('If the schema is not correct, return error', async done => {
+        const response = await request(server).post('/api/v1/users/signup')
+                            .set('Accept', 'application/json')
+                            .set("Authorization", authHeader)
+                            .expect(status.UNPROCESSABLE_ENTITY)
+        expect(response.body.message).toEqual('Missing fields')
+        done()
+    })
+    test('If username already exists, we get error', async done => {
+        const response = await request(server).post('/api/v1/users/signup')
+                                .set('Accept', 'application/json')
+                                .set("Authorization", authHeader)
+                                .send({email: 'ovidium10@yahoo.com'})
+                                .expect(status.UNPROCESSABLE_ENTITY)
+        expect(response.body.message).toEqual('Username already exists')
+        done()
+    })
+    test('If successful, user should be added to the database and returned', async done => {
+        const response = await request(server).post('/api/v1/users/signup')
+                                .set('Accept', 'application/json')
+                                .set("Authorization", newUserHeader)
+                                .send({email: 'ovidium10@yahoo.com'})
+                                .expect(status.CREATED)
+        expect(response.body).toEqual(expect.objectContaining({username: 'wrong'}))
         done()
     })
 })

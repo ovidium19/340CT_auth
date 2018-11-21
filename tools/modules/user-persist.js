@@ -10,7 +10,8 @@ const adminUser = {
 }
 const userSchema = {
     username: true,
-    password: true
+    password: true,
+    email: true
 }
 export async function createUser(userData) {
     if (!schemaCheck(userSchema, userData)) return Promise.reject({message: 'Missing fields'})
