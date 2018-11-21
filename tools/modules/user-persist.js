@@ -61,3 +61,12 @@ async function postUserData(userData,adminUser) {
     await client.close()
     return Object.assign({},result.ops,{id: result.insertedId})
 }
+export async function getUserByUsername(username,user){
+    if (!user) user = adminUser
+    let client = await connect(user)
+    let db = await client.db(process.env.MONGO_DBUSERS)
+    let collection = await db.collection(process.env.MONGO_USER_DBNAME)
+    let result = await collection.findOne({username})
+    await client.close()
+    return result
+}
