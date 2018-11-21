@@ -13,11 +13,13 @@ let adminUser = {
 describe('Testing connection', () => {
     const correctUser = {
         username: 'test',
-        password: 'test'
+        password: 'test',
+        email: 'test'
     }
     const wrongUser = {
         username: 'wrong',
-        password: 'wrong'
+        password: 'wrong',
+        email: 'wrong'
     }
     test('If authentication succeeds, user should be available', async done => {
         const result = await db.getUserByUsername('test')
@@ -58,7 +60,8 @@ describe('Testing createUser', () => {
     test('If successfull, result should contain user information stored in public db', async done => {
         const userData = {
             username: 'test2',
-            password: 'test'
+            password: 'test',
+            email: 'test'
         }
         const expectedResult = {
             id: 2
