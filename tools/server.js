@@ -17,26 +17,20 @@ const api_schema = {
             methods : 'GET'
         },
         {
-            path: `/api/${currentVersion}/user/create`,
+            path: `/api/${currentVersion}/users/signup`,
             methods: 'POST',
-            description: 'Create user in MongoDB with readWrite permission on database courses'
+            description: 'Create user in MongoDB with read permission on database users'
         },
         {
-            path: `/api/${currentVersion}/courses`,
-            method: 'POST',
-            description: 'Create a course and add it to MongoDB "courses" database'
-        },
-        {
-            path: `/api/${currentVersion}/courses/:id`,
-            method: 'PUT',
-            description: 'Update course with specified id'
-        },
-        {
-            path: `/api/${currentVersion}/courses/:id`,
+            path: `/api/${currentVersion}/users/login`,
             method: 'GET',
-            description: 'Get course with specified id'
+            description: 'Get user details. Requires Authorization header'
+        },
+        {
+            path: `/api/${currentVersion}/users/login`,
+            method: 'HEAD',
+            description: 'Get OK or UNAUTHORIZED, if user is in the database'
         }
-
     ]
 }
 const app = new koa()
