@@ -17,12 +17,18 @@ describe('Testing connection', () => {
         password: 'wrong'
     }
     test('If authentication succeeds, user should be available', async done => {
-
+        const result = await db.getUserByUsername('test')
+        expect(result['username']).toBe('test')
         done()
     })
 
     test('If wrong user, authentication fails', async done => {
-
+        try{
+            const result = await db.getUserByUsername('test',wrongUser)
+        }
+        catch(err){
+            expect(err.message).toBe('Authentication failed')
+        }
         done()
     })
 })

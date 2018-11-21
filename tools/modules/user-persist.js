@@ -65,7 +65,7 @@ export async function getUserByUsername(username,user){
     if (!user) user = adminUser
     let client = await connect(user)
     let db = await client.db(process.env.MONGO_DBUSERS)
-    let collection = await db.collection(process.env.MONGO_USER_DBNAME)
+    let collection = await db.collection(process.env.MONGO_DBUSERS_COLLECTION)
     let result = await collection.findOne({username})
     await client.close()
     return result

@@ -27,7 +27,7 @@ const users = [
     },
     {
         username: 'ovidium19',
-        password: '304CemWork'
+        password: '340CTWork'
     }
 ]
 const data = [
@@ -50,7 +50,12 @@ class Collection {
         this.data = Object.assign({},data[dbs[name].index])
         this.key = dbs[name].key
     }
-
+    findOne(value){
+        return new Promise((resolve,reject) => {
+            let item = this.data.s.documents.find(u => u[this.key] == value[this.key])
+            resolve(item)
+        })
+    }
 }
 
 class MongoDB {
@@ -95,6 +100,7 @@ class MongoDBClient {
 }
 export class MongoClient {
     static connect(con,options) {
+        console.log(options)
         return new Promise((resolve,reject) => {
             if (options.auth.user == 'forceError') reject(new Error('Connection not established'))
             let user = users.find(u => u.username == options.auth.user)
