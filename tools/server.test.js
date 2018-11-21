@@ -166,3 +166,70 @@ describe('POST /api/v1/users/signup', () => {
         done()
     })
 })
+
+describe('GET /login', () => {
+    let authHeader
+    let wrongUserHeader
+    beforeAll(() => {
+        authHeader = "Basic " + btoa("test:test")
+        wrongUserHeader = "Basic " + btoa("wrong2:wrong2")
+    })
+    afterAll(runAfterAll)
+
+    test('Check common headers' , async done => {
+        //expect.assertions(2)
+        const response = await request(server).get('/api/v1/users/login')
+                            .expect(status.UNAUTHORIZED)
+        //expect(response.status).toBe(status.OK)
+		expect(response.header['access-control-allow-origin']).toBe('*')
+		done()
+    })
+    test('If successful, user exists and we get its data back', async done => {
+        const response = await request(server).get('/api/v1/users/login')
+                                .set('Accept', 'application/json')
+                                .set("Authorization", authHeader)
+                                .expect(status.OK)
+        expect(response.body).toEqual(expect.objectContaining({email: 'test'}))
+        done()
+    })
+    test('If user doesn\'t exist, expect UNAUTHORIZED', async done => {
+        const response = await request(server).get('/api/v1/users/login')
+                                .set('Accept', 'application/json')
+                                .set("Authorization", wrongUserHeader)
+                                .expect(status.UNAUTHORIZED)
+        expect(response.body.message).toEqual('Username not found')
+        done()
+    })
+})
+describe('HEAD /login', () => {
+    let authHeader
+    let wrongUserHeader
+    beforeAll(() => {
+        authHeader = "Basic " + btoa("test:test")
+        wrongUserHeader = "Basic " + btoa("wrong3:wrong3")
+    })
+    afterAll(runAfterAll)
+
+    test('Check common headers' , async done => {
+        //expect.assertions(2)
+        const response = await request(server).head('/api/v1/users/login')
+                            .expect(status.UNAUTHORIZED)
+        //expect(response.status).toBe(status.OK)
+		expect(response.header['access-control-allow-origin']).toBe('*')
+		done()
+    })
+    test('If successful, user exists and we get confirmation', async done => {
+        const response = await request(server).head('/api/v1/users/login')
+                                .set('Accept', 'application/json')
+                                .set("Authorization", authHeader)
+                                .expect(status.OK)
+        done()
+    })
+    test('If user doesn\'t exist, expect UNAUTHORIZED', async done => {
+        const response = await request(server).head('/api/v1/users/login')
+                                .set('Accept', 'application/json')
+                                .set("Authorization", wrongUserHeader)
+                                .expect(status.UNAUTHORIZED)
+        done()
+    })
+})

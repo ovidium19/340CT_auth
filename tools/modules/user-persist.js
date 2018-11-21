@@ -74,3 +74,8 @@ export async function getUserByUsername(user){
     await client.close()
     return result
 }
+export async function headlessConnection(user){
+    let { client } = await getClientAndCollection(user,process.env.MONGO_DBUSERS, process.env.MONGO_DBUSERS_COLLECTION)
+    await client.close()
+    return true
+}

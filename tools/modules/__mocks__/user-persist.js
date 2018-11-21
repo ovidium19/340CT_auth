@@ -2,11 +2,13 @@ import {schemaCheck} from '../utils'
 const users = [
     {
         username: 'ovidium19',
-        password: '340CTWork'
+        password: '340CTWork',
+        email: 'ovi'
     },
     {
         username: 'test',
-        password: 'test'
+        password: 'test',
+        email: 'test'
     }
 ]
 const courses = [
@@ -34,8 +36,15 @@ export async function createUser(userData) {
         }
     )
 }
-export async function getUserByUsername(username,user){
+export async function getUserByUsername(user){
     return new Promise((resolve,reject) => {
-        resolve(users.find(u => u.username == username))
+        let userFound = users.find(u => u.username == user.username)
+        userFound ? resolve(userFound) : reject({message: 'Username not found'})
+    })
+}
+export async function headlessConnection(user){
+    return new Promise((resolve,reject) => {
+        let resp = users.some(u => u.username == user.username)
+        resp ? resolve() : reject()
     })
 }

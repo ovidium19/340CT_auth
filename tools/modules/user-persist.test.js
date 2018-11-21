@@ -10,34 +10,6 @@ let adminUser = {
     password: process.env.MONGO_ADMIN_PASSWORD
 }
 
-describe('Testing connection', () => {
-    const correctUser = {
-        username: 'test',
-        password: 'test',
-        email: 'test'
-    }
-    const wrongUser = {
-        username: 'wrong',
-        password: 'wrong',
-        email: 'wrong'
-    }
-    test('If authentication succeeds, user should be available', async done => {
-        const result = await db.getUserByUsername('test')
-        expect(result['username']).toBe('test')
-        done()
-    })
-
-    test('If wrong user, authentication fails', async done => {
-        try{
-            const result = await db.getUserByUsername('test',wrongUser)
-        }
-        catch(err){
-            expect(err.message).toBe('Authentication failed')
-        }
-        done()
-    })
-})
-
 describe('Testing createUser', () => {
     beforeAll(() => {
         axios.mockImplementation((options) => {
@@ -81,6 +53,39 @@ describe('Testing createUser', () => {
         catch(result){
             expect(result.message).toBe('Missing fields')
         }
+        done()
+    })
+})
+
+describe("Testing getUserByUsername and headlessConnection", () => {
+    const correctUser = {
+        username: 'test',
+        password: 'test',
+        email: 'test'
+    }
+    const wrongUser = {
+        username: 'wrong',
+        password: 'wrong',
+        email: 'wrong'
+    }
+    test('If authentication succeeds, user should be available', async done => {
+        const result = await db.getUserByUsername(correctUser)
+        expect(result['username']).toBe('test')
+        done()
+    })
+
+    test('If wrong user, authentication fails', async done => {
+        try{
+            const result = await db.getUserByUsername('test',wrongUser)
+        }
+        catch(err){
+            expect(err.message).toBe('Authentication failed')
+        }
+        done()
+    })
+    test('headless connection returns true when correct details are passed', async done => {
+        let result = db.headlessConnection(correctUser)
+        expect(result).toBeTruthy();
         done()
     })
 })
