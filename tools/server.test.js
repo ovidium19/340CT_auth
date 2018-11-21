@@ -1,6 +1,7 @@
 import server from './server'
 import status from 'http-status-codes'
 import request from 'supertest'
+import btoa from 'btoa'
 /*
 Normally I would have a test file for each different module, but because in each other module I would
 have to import the server script, then the server script will attempt to listen on the same port every time.
@@ -73,8 +74,7 @@ describe('GET /api/v1', () => {
         done()
     })
 })
-
-describe('GET /api/v1/users', () => {
+describe('Test unauthorized access to /users', () => {
     beforeAll(runBeforeAll)
     afterAll(runAfterAll)
 
@@ -86,16 +86,34 @@ describe('GET /api/v1/users', () => {
 		expect(response.header['content-type']).toContain('application/json')
 		done()
     })
+    test("Check that route is restricted by lack of Authorization header", async done => {
+        const response = await request(server).get('/api/v1/users')
+        expect(response.status).toEqual(status.UNAUTHORIZED)
+		const data = JSON.parse(response.text)
+		expect(data.message).toBe('Authorization header is not present')
+		done()
+    })
+})
+describe('GET /api/v1/users authenticated', () => {
+    let authHeader
+    let authHeaderWrongUser
+    beforeAll(() => {
+        authHeader = "Basic " + btoa("test:test")
+        authHeaderWrongUser = "Basic " + btoa("wrong:wrong")
+    })
+    afterAll(runAfterAll)
+
+
     test('check for NOT_FOUND status if database down', async done => {
 		const response = await request(server).get('/api/v1/users')
-			.set('error', 'foo')
+			.set('error', 'foo').set("Authorization",authHeader)
         expect(response.status).toEqual(status.NOT_FOUND)
 		const data = JSON.parse(response.text)
 		expect(data.message).toBe('foo')
 		done()
     })
-    test('check body for api/v1', async done => {
-        const response = await request(server).get('/api/v1/users')
+    test('check body for api/v1/users', async done => {
+        const response = await request(server).get('/api/v1/users').set("Authorization", authHeader)
         expect(response.body).toEqual(expect.objectContaining({
             path: '/api/v1/user - path'
         }))
