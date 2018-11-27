@@ -3,7 +3,8 @@ import koaBP from 'koa-bodyparser'
 import Router from 'koa-router'
 import status from 'http-status-codes'
 import mount from 'koa-mount'
-
+import morgan from 'koa-morgan'
+import cors from 'koa-cors'
 import v1 from './versions/v1/v1'
 require('dotenv').config()
 const currentVersion = "v1"
@@ -36,12 +37,18 @@ const api_schema = {
 const app = new koa()
 const port = 3030
 app.use(koaBP())
-const router = new Router()
-app.use( async(ctx, next) => {
-    ctx.set('Access-Control-Allow-Origin', '*')
-    ctx.set('Content-Type','application/json')
-	await next()
+app.use(morgan('tiny'))
+app.use(cors())
+app.use( async (ctx,next) => {
+    console.log(ctx.headers)
+    await next()
 })
+const router = new Router()
+// app.use( async(ctx, next) => {
+//     ctx.set('Access-Control-Allow-Origin', '*')
+//     ctx.set('Content-Type','application/json')
+// 	await next()
+// })
 router.get('/api', async ctx => {
     ctx.set('Allow','GET')
     ctx.status = status.OK
@@ -58,6 +65,10 @@ app.use(router.routes())
 app.use(router.allowedMethods())
 app.use(mount('/api/v1',v1))
 const server = app.listen(port, () => {
+    server.on('error', err => {
+        console.log("Caught connection error")
+        console.log(err.stack)
+    })
     console.log(`Listening on ${port}`)
 })
 

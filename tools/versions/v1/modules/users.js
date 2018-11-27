@@ -4,6 +4,7 @@ import Router from 'koa-router'
 import status from 'http-status-codes'
 import * as db from '../../../modules/user-persist'
 import basicAuth from './basicAuth'
+
 /*
 POST /signup
 HEAD /login
@@ -16,6 +17,8 @@ const app = new koa()
 app.use(koaBP())
 app.use( async(ctx, next) => {
     ctx.set('Access-Control-Allow-Origin', '*')
+    ctx.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+    ctx.set('Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS')
     ctx.set('content-type','application/json')
 	await next()
 })
@@ -45,21 +48,10 @@ router.get('/',async ctx => {
         ctx.body = {status: status.NOT_FOUND, message: err.message}
     }
 })
-router.head('/login',async ctx => {
-    ctx.set('Allow','GET, HEAD')
-    const user = ctx.state.user
-    try{
 
-        let res = await db.headlessConnection(user)
-        ctx.status = status.OK
-    }
-    catch(err) {
-        ctx.status = status.UNAUTHORIZED
-    }
-})
 
 router.get('/login',async ctx => {
-    ctx.set('Allow','GET, HEAD')
+    ctx.set('Allow','GET, HEAD, OPTIONS')
     const user = ctx.state.user
     try{
         let res = await db.getUserByUsername(user)
@@ -82,8 +74,22 @@ router.post('/signup', async ctx => {
         ctx.status = status.CREATED
     }
     catch(err) {
-        ctx.status = status.UNPROCESSABLE_ENTITY
-        ctx.body = {status: status.UNPROCESSABLE_ENTITY, message: err.message}
+        console.log(err.response)
+        ctx.status = err.response.status
+        ctx.body = {status: err.response.status, data: err.response.data}
+    }
+})
+router.head('/login',async ctx => {
+    ctx.set('Allow','GET, HEAD, OPTIONS')
+    const user = ctx.state.user
+    console.log(user)
+    try{
+
+        let res = await db.headlessConnection(user)
+        ctx.status = status.OK
+    }
+    catch(err) {
+        ctx.status = status.UNAUTHORIZED
     }
 })
 app.use(router.routes())
