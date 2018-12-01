@@ -1,4 +1,5 @@
 import {schemaCheck} from '../utils'
+import status from 'http-status-codes'
 const users = [
     {
         username: 'ovidium19',
@@ -27,9 +28,20 @@ export async function createUser(userData) {
 
     return new Promise(
         (resolve,reject) => {
-        if (!(schemaCheck(userSchema,userData))) reject({message: 'Missing fields'})
+        if (!(schemaCheck(userSchema,userData))) reject({
+            response: {
+                status: status.UNPROCESSABLE_ENTITY,
+                data: 'Missing fields'
+            }
+
+        })
         if (users.find(u => u.username == userData.username)){
-            reject({message: 'Username already exists'})
+            reject({
+                response: {
+                    status: status.UNPROCESSABLE_ENTITY,
+                    data: 'Username already exists'
+                }
+            })
         }
         users.push(userData)
         resolve(users.find(u => u.username == userData.username))

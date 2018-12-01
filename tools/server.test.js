@@ -34,7 +34,6 @@ describe('GET /api', () => {
     })
     test('check body for api', async done => {
         const response = await request(server).get('/api')
-        const expected = [{name: 'users'},{name: 'courses'}]
         expect(response.body).toEqual(expect.objectContaining({
             currentVersion: expect.any(String),
             routes: expect.any(Array)
@@ -50,31 +49,6 @@ describe('GET /api', () => {
 		expect(data.message).toBe('foo')
 		done()
 	})
-})
-describe('GET /api/v1', () => {
-    beforeAll(runBeforeAll)
-
-    test('check common response headers', async done => {
-		//expect.assertions(2)
-        const response = await request(server).get('/api/v1')
-        //expect(response.status).toBe(status.OK)
-		expect(response.header['access-control-allow-origin']).toBe('*')
-		expect(response.header['content-type']).toContain('application/json')
-		done()
-    })
-    test('check for NOT_FOUND status if database down', async done => {
-		const response = await request(server).get('/api/v1')
-			.set('error', 'foo')
-        expect(response.status).toEqual(status.NOT_FOUND)
-		const data = JSON.parse(response.text)
-		expect(data.message).toBe('foo')
-		done()
-    })
-    test('check body for api/v1', async done => {
-        const response = await request(server).get('/api/v1')
-        expect(response.body).toEqual(expect.objectContaining({path: expect.any(String)}))
-        done()
-    })
 })
 describe('Test unauthorized access to /users', () => {
     beforeAll(runBeforeAll)
@@ -144,7 +118,7 @@ describe('POST /api/v1/users/signup', () => {
                             .set('Accept', 'application/json')
                             .set("Authorization", authHeader)
                             .expect(status.UNPROCESSABLE_ENTITY)
-        expect(response.body.message).toEqual('Missing fields')
+        expect(response.body.data).toEqual('Missing fields')
         done()
     })
     test('If username already exists, we get error', async done => {
@@ -153,7 +127,7 @@ describe('POST /api/v1/users/signup', () => {
                                 .set("Authorization", authHeader)
                                 .send({email: 'ovidium10@yahoo.com'})
                                 .expect(status.UNPROCESSABLE_ENTITY)
-        expect(response.body.message).toEqual('Username already exists')
+        expect(response.body.data).toEqual('Username already exists')
         done()
     })
     test('If successful, user should be added to the database and returned', async done => {

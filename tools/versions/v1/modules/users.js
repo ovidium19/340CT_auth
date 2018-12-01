@@ -82,10 +82,12 @@ router.post('/signup', async ctx => {
         ctx.status = status.CREATED
     }
     catch(err) {
-        ctx.status = status.UNPROCESSABLE_ENTITY
-        ctx.body = {status: status.UNPROCESSABLE_ENTITY, message: err.message}
+        console.log(err)
+        ctx.status = err.response.status
+        ctx.body = {status: err.response.status, data: err.response.data}
     }
 })
+
 app.use(router.routes())
 app.use(router.allowedMethods())
 
