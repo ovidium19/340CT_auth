@@ -49,7 +49,18 @@ router.get('/',async ctx => {
     }
 })
 
+router.head('/login',async ctx => {
+    ctx.set('Allow','GET, HEAD, OPTIONS')
+    const user = ctx.state.user
+    try{
 
+        let res = await db.headlessConnection(user)
+        ctx.status = status.OK
+    }
+    catch(err) {
+        ctx.status = status.UNAUTHORIZED
+    }
+})
 router.get('/login',async ctx => {
     ctx.set('Allow','GET, HEAD, OPTIONS')
     const user = ctx.state.user
@@ -79,19 +90,8 @@ router.post('/signup', async ctx => {
         ctx.body = {status: err.response.status, data: err.response.data}
     }
 })
-router.head('/login',async ctx => {
-    ctx.set('Allow','GET, HEAD, OPTIONS')
-    const user = ctx.state.user
-    console.log(user)
-    try{
 
-        let res = await db.headlessConnection(user)
-        ctx.status = status.OK
-    }
-    catch(err) {
-        ctx.status = status.UNAUTHORIZED
-    }
-})
+
 app.use(router.routes())
 app.use(router.allowedMethods())
 

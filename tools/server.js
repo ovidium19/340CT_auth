@@ -40,7 +40,10 @@ app.use(koaBP())
 app.use(morgan('tiny'))
 app.use(cors())
 app.use( async (ctx,next) => {
-    console.log(ctx.headers)
+    ctx.set('Access-Control-Allow-Origin', '*')
+    ctx.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+    ctx.set('Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS')
+    ctx.set('content-type','application/json')
     await next()
 })
 const router = new Router()
@@ -65,10 +68,6 @@ app.use(router.routes())
 app.use(router.allowedMethods())
 app.use(mount('/api/v1',v1))
 const server = app.listen(port, () => {
-    server.on('error', err => {
-        console.log("Caught connection error")
-        console.log(err.stack)
-    })
     console.log(`Listening on ${port}`)
 })
 
