@@ -17,7 +17,9 @@
       "jest": true
     },
     "rules": {
-      "quotes": 0,
+        "complexity": ["error", 4],
+        "max-statements": ["error", 15],
+        "quotes": [1, "single"],
       "no-console": 1,
       "no-debugger": 1,
       "no-unreachable": "off",

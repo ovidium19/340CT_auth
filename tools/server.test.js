@@ -62,7 +62,7 @@ describe('Test unauthorized access to /users', () => {
 		expect(response.header['content-type']).toContain('application/json')
 		done()
     })
-    test("Check that route is restricted by lack of Authorization header", async done => {
+    test('Check that route is restricted by lack of Authorization header', async done => {
         const response = await request(server).get('/api/v1/users')
         expect(response.status).toEqual(status.UNAUTHORIZED)
 		const data = JSON.parse(response.text)
@@ -74,22 +74,22 @@ describe('GET /api/v1/users authenticated', () => {
     let authHeader
     let authHeaderWrongUser
     beforeAll(() => {
-        authHeader = "Basic " + btoa("test:test")
-        authHeaderWrongUser = "Basic " + btoa("wrong:wrong")
+        authHeader = 'Basic ' + btoa('test:test')
+        authHeaderWrongUser = 'Basic ' + btoa('wrong:wrong')
     })
     afterAll(runAfterAll)
 
 
     test('check for NOT_FOUND status if database down', async done => {
 		const response = await request(server).get('/api/v1/users')
-			.set('error', 'foo').set("Authorization",authHeader)
+			.set('error', 'foo').set('Authorization',authHeader)
         expect(response.status).toEqual(status.NOT_FOUND)
 		const data = JSON.parse(response.text)
 		expect(data.message).toBe('foo')
 		done()
     })
     test('check body for api/v1/users', async done => {
-        const response = await request(server).get('/api/v1/users').set("Authorization", authHeader)
+        const response = await request(server).get('/api/v1/users').set('Authorization', authHeader)
         expect(response.body).toEqual(expect.objectContaining({
             path: '/api/v1/user - path'
         }))
@@ -100,8 +100,8 @@ describe('POST /api/v1/users/signup', () => {
     let authHeader
     let newUserHeader
     beforeAll(() => {
-        authHeader = "Basic " + btoa("test:test")
-        newUserHeader = "Basic " + btoa("wrong:wrong")
+        authHeader = 'Basic ' + btoa('test:test')
+        newUserHeader = 'Basic ' + btoa('wrong:wrong')
     })
     afterAll(runAfterAll)
 
@@ -116,7 +116,7 @@ describe('POST /api/v1/users/signup', () => {
     test('If the schema is not correct, return error', async done => {
         const response = await request(server).post('/api/v1/users/signup')
                             .set('Accept', 'application/json')
-                            .set("Authorization", authHeader)
+                            .set('Authorization', authHeader)
                             .expect(status.UNPROCESSABLE_ENTITY)
         expect(response.body.data).toEqual('Missing fields')
         done()
@@ -124,7 +124,7 @@ describe('POST /api/v1/users/signup', () => {
     test('If username already exists, we get error', async done => {
         const response = await request(server).post('/api/v1/users/signup')
                                 .set('Accept', 'application/json')
-                                .set("Authorization", authHeader)
+                                .set('Authorization', authHeader)
                                 .send({email: 'ovidium10@yahoo.com'})
                                 .expect(status.UNPROCESSABLE_ENTITY)
         expect(response.body.data).toEqual('Username already exists')
@@ -133,7 +133,7 @@ describe('POST /api/v1/users/signup', () => {
     test('If successful, user should be added to the database and returned', async done => {
         const response = await request(server).post('/api/v1/users/signup')
                                 .set('Accept', 'application/json')
-                                .set("Authorization", newUserHeader)
+                                .set('Authorization', newUserHeader)
                                 .send({email: 'ovidium10@yahoo.com'})
                                 .expect(status.CREATED)
         expect(response.body).toEqual(expect.objectContaining({username: 'wrong'}))
@@ -145,8 +145,8 @@ describe('GET /login', () => {
     let authHeader
     let wrongUserHeader
     beforeAll(() => {
-        authHeader = "Basic " + btoa("test:test")
-        wrongUserHeader = "Basic " + btoa("wrong2:wrong2")
+        authHeader = 'Basic ' + btoa('test:test')
+        wrongUserHeader = 'Basic ' + btoa('wrong2:wrong2')
     })
     afterAll(runAfterAll)
 
@@ -161,7 +161,7 @@ describe('GET /login', () => {
     test('If successful, user exists and we get its data back', async done => {
         const response = await request(server).get('/api/v1/users/login')
                                 .set('Accept', 'application/json')
-                                .set("Authorization", authHeader)
+                                .set('Authorization', authHeader)
                                 .expect(status.OK)
         expect(response.body).toEqual(expect.objectContaining({email: 'test'}))
         done()
@@ -169,7 +169,7 @@ describe('GET /login', () => {
     test('If user doesn\'t exist, expect UNAUTHORIZED', async done => {
         const response = await request(server).get('/api/v1/users/login')
                                 .set('Accept', 'application/json')
-                                .set("Authorization", wrongUserHeader)
+                                .set('Authorization', wrongUserHeader)
                                 .expect(status.UNAUTHORIZED)
         expect(response.body.message).toEqual('Username not found')
         done()
@@ -179,8 +179,8 @@ describe('HEAD /login', () => {
     let authHeader
     let wrongUserHeader
     beforeAll(() => {
-        authHeader = "Basic " + btoa("test:test")
-        wrongUserHeader = "Basic " + btoa("wrong3:wrong3")
+        authHeader = 'Basic ' + btoa('test:test')
+        wrongUserHeader = 'Basic ' + btoa('wrong3:wrong3')
     })
     afterAll(runAfterAll)
 
@@ -195,14 +195,14 @@ describe('HEAD /login', () => {
     test('If successful, user exists and we get confirmation', async done => {
         const response = await request(server).head('/api/v1/users/login')
                                 .set('Accept', 'application/json')
-                                .set("Authorization", authHeader)
+                                .set('Authorization', authHeader)
                                 .expect(status.OK)
         done()
     })
     test('If user doesn\'t exist, expect UNAUTHORIZED', async done => {
         const response = await request(server).head('/api/v1/users/login')
                                 .set('Accept', 'application/json')
-                                .set("Authorization", wrongUserHeader)
+                                .set('Authorization', wrongUserHeader)
                                 .expect(status.UNAUTHORIZED)
         done()
     })

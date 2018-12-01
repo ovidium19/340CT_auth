@@ -57,7 +57,7 @@ describe('Testing createUser', () => {
     })
 })
 
-describe("Testing getUserByUsername and headlessConnection", () => {
+describe('Testing getUserByUsername and headlessConnection', () => {
     const correctUser = {
         username: 'test',
         password: 'test',
@@ -85,7 +85,7 @@ describe("Testing getUserByUsername and headlessConnection", () => {
     })
     test('headless connection returns true when correct details are passed', async done => {
         let result = db.headlessConnection(correctUser)
-        expect(result).toBeTruthy();
+        expect(result).toBeTruthy()
         done()
     })
 })
